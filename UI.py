@@ -27,7 +27,7 @@ def App():
 				running = False
 			if event.type == pygame.MOUSEMOTION:
 				m_pos = pygame.mouse.get_pos()
-				pygame.draw.circle(window, BLUE, m_pos, 10, 0)	
+				pygame.draw.circle(window, BLUE, m_pos, 30, 0)	
 				pygame.display.update()
 				
 	
