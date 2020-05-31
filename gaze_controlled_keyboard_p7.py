@@ -109,7 +109,7 @@ def get_gaze_ratio(eye_points, facial_landmarks):
                                 (facial_landmarks.part(eye_points[3]).x, facial_landmarks.part(eye_points[3]).y),
                                 (facial_landmarks.part(eye_points[4]).x, facial_landmarks.part(eye_points[4]).y),
                                 (facial_landmarks.part(eye_points[5]).x, facial_landmarks.part(eye_points[5]).y)], np.int32)
-    # cv2.polylines(frame, [left_eye_region], True, (0, 0, 255), 2)
+    cv2.polylines(frame, [left_eye_region], True, (0, 0, 255), 2)
 
     height, width, _ = frame.shape
     mask = np.zeros((height, width), np.uint8)
@@ -153,9 +153,9 @@ while True:
 
     faces = detector(gray)
     for face in faces:
-        #x, y = face.left(), face.top()
-        #x1, y1 = face.right(), face.bottom()
-        #cv2.rectangle(frame, (x, y), (x1, y1), (0, 255, 0), 2)
+        x, y = face.left(), face.top()
+        x1, y1 = face.right(), face.bottom()
+        cv2.rectangle(frame, (x, y), (x1, y1), (0, 255, 0), 2)
 
         landmarks = predictor(gray, face)
 
