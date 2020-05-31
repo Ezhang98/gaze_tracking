@@ -7,12 +7,10 @@ from random import randint
 import pygame
 import time
 
-frame = None
-
 def midpoint(p1 ,p2):
     return int((p1.x + p2.x)/2), int((p1.y + p2.y)/2)
 
-def get_blinking_ratio(eye_points, facial_landmarks):
+def get_blinking_ratio(eye_points, facial_landmarks, frame):
     left_point = (facial_landmarks.part(eye_points[0]).x, facial_landmarks.part(eye_points[0]).y)
     right_point = (facial_landmarks.part(eye_points[3]).x, facial_landmarks.part(eye_points[3]).y)
     center_top = midpoint(facial_landmarks.part(eye_points[1]), facial_landmarks.part(eye_points[2]))
@@ -27,7 +25,7 @@ def get_blinking_ratio(eye_points, facial_landmarks):
     ratio = hor_line_lenght / ver_line_lenght
     return ratio
 
-def get_gaze_ratio(eye_points, facial_landmarks):
+def get_gaze_ratio(eye_points, facial_landmarks, frame):
     left_eye_region = np.array([(facial_landmarks.part(eye_points[0]).x, facial_landmarks.part(eye_points[0]).y),
                                 (facial_landmarks.part(eye_points[1]).x, facial_landmarks.part(eye_points[1]).y),
                                 (facial_landmarks.part(eye_points[2]).x, facial_landmarks.part(eye_points[2]).y),
@@ -65,7 +63,7 @@ def get_gaze_ratio(eye_points, facial_landmarks):
     return gaze_ratio
 
 def App():
-    cap = cv2.VideoCapture(0)
+
     detector = dlib.get_frontal_face_detector()
     font = cv2.FONT_HERSHEY_PLAIN
     predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
@@ -85,7 +83,7 @@ def App():
     # Counters
     frames = 0
     letter_index = 0
-
+    cap = cv2.VideoCapture(0)
     while True:
         _, frame = cap.read()
         if(frame is None):
@@ -107,8 +105,8 @@ def App():
             landmarks = predictor(gray, face)
 
             # Detect blinking
-            left_eye_ratio = get_blinking_ratio([36, 37, 38, 39, 40, 41], landmarks)
-            right_eye_ratio = get_blinking_ratio([42, 43, 44, 45, 46, 47], landmarks)
+            left_eye_ratio = get_blinking_ratio([36, 37, 38, 39, 40, 41], landmarks, frame)
+            right_eye_ratio = get_blinking_ratio([42, 43, 44, 45, 46, 47], landmarks, frame)
             blinking_ratio = (left_eye_ratio + right_eye_ratio) / 2
 
             if blinking_ratio > 5.7:
@@ -151,12 +149,10 @@ def App():
             # pygame.draw.circle(window, pygame.Color(0, 0, 255), (2880 + int(gaze_ratio * -2880/3) , int(1800/4)), 30, 0)	
             pygame.display.update()
 
-            key = cv2.waitKey(1)
-            if key == 27:
-                break
-
-            cap.release()
-            cv2.destroyAllWindows()
+            if cv.waitKey(1) == ord('q'):
+                break;
+    cap.release()
+    cv2.destroyAllWindows()
 
 if __name__ == "__main__" :
     App()
