@@ -25,7 +25,7 @@ def get_blinking_ratio(eye_points, facial_landmarks, frame):
     ratio = hor_line_lenght / ver_line_lenght
     return ratio
 
-def get_gaze_ratio(eye_points, facial_landmarks, frame):
+def get_gaze_ratio(eye_points, facial_landmarks, frame, gray):
     left_eye_region = np.array([(facial_landmarks.part(eye_points[0]).x, facial_landmarks.part(eye_points[0]).y),
                                 (facial_landmarks.part(eye_points[1]).x, facial_landmarks.part(eye_points[1]).y),
                                 (facial_landmarks.part(eye_points[2]).x, facial_landmarks.part(eye_points[2]).y),
@@ -109,14 +109,15 @@ def App():
             right_eye_ratio = get_blinking_ratio([42, 43, 44, 45, 46, 47], landmarks, frame)
             blinking_ratio = (left_eye_ratio + right_eye_ratio) / 2
 
-            if blinking_ratio > 5.7:
-                cv2.putText(frame, "BLINKING", (50, 150), font, 7, (255, 0, 0))
+            # print(blinking_ratio)
+            # if blinking_ratio > 5.7:
+                # cv2.putText(frame, "BLINKING", (50, 150), font, 7, (255, 0, 0))
 
 
             # Gaze detection
-            # gaze_ratio_left_eye = get_gaze_ratio([36, 37, 38, 39, 40, 41], landmarks)
-            # gaze_ratio_right_eye = get_gaze_ratio([42, 43, 44, 45, 46, 47], landmarks)
-            # gaze_ratio = (gaze_ratio_right_eye + gaze_ratio_left_eye) / 2
+            gaze_ratio_left_eye = get_gaze_ratio([36, 37, 38, 39, 40, 41], landmarks, frame, gray)
+            gaze_ratio_right_eye = get_gaze_ratio([42, 43, 44, 45, 46, 47], landmarks, frame, gray)
+            gaze_ratio = (gaze_ratio_right_eye + gaze_ratio_left_eye) / 2
 
 
             cv2.imshow("Frame", frame)
@@ -141,16 +142,22 @@ def App():
             # else:
             #     new_frame[:] = (255, 0, 0)
             #     cv2.putText(frame, "LEFT", (50, 100), font, 2, (0, 0, 255), 3)
-            window.fill((0,0,0))
-            # for event in pygame.event.get():
-            #     if event.type == pygame.MOUSEMOTION:
-            #         m_pos = pygame.mouse.get_pos()
-
-            # pygame.draw.circle(window, pygame.Color(0, 0, 255), (2880 + int(gaze_ratio * -2880/3) , int(1800/4)), 30, 0)	
+            # window.fill((0,0,0))
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    break
+                if event.type == pygame.MOUSEMOTION:
+                    m_pos = pygame.mouse.get_pos()
+                    print("mouse: " ,m_pos)
+            x = 2880 + int(gaze_ratio * -2880/3)
+            y = int((blinking_ratio-3)*1800/2)
+            print((x, y))
+            
+            pygame.draw.circle(window, pygame.Color(0, 0, 255), (x, y), 30, 0)	
             pygame.display.update()
 
-            if cv.waitKey(1) == ord('q'):
-                break;
+            if cv2.waitKey(1) == ord('q'):
+                break
     cap.release()
     cv2.destroyAllWindows()
 
