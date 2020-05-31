@@ -21,12 +21,13 @@ def App():
 	window = pygame.display.set_mode((display_w , display_h))
 
 	while(running):
+		window.fill((0,0,0))
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
 				running = False
 			if event.type == pygame.MOUSEMOTION:
 				m_pos = pygame.mouse.get_pos()
-				pygame.draw.circle(window, BLUE, m_pos, 20, 300)	
+				pygame.draw.circle(window, BLUE, m_pos, 10, 0)	
 				pygame.display.update()
 				
 	
