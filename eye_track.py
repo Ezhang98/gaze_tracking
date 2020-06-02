@@ -105,9 +105,9 @@ def App():
             landmarks = predictor(gray, face)
 
             # Detect blinking
-            left_eye_ratio = get_blinking_ratio([36, 37, 38, 39, 40, 41], landmarks, frame)
-            right_eye_ratio = get_blinking_ratio([42, 43, 44, 45, 46, 47], landmarks, frame)
-            blinking_ratio = (left_eye_ratio + right_eye_ratio) / 2
+            # left_eye_ratio = get_blinking_ratio([36, 37, 38, 39, 40, 41], landmarks, frame)
+            # right_eye_ratio = get_blinking_ratio([42, 43, 44, 45, 46, 47], landmarks, frame)
+            # blinking_ratio = (left_eye_ratio + right_eye_ratio) / 2
 
             # print(blinking_ratio)
             # if blinking_ratio > 5.7:
@@ -115,12 +115,12 @@ def App():
 
 
             # Gaze detection
-            gaze_ratio_left_eye = get_gaze_ratio([36, 37, 38, 39, 40, 41], landmarks, frame, gray)
-            gaze_ratio_right_eye = get_gaze_ratio([42, 43, 44, 45, 46, 47], landmarks, frame, gray)
-            gaze_ratio = (gaze_ratio_right_eye + gaze_ratio_left_eye) / 2
+            # gaze_ratio_left_eye = get_gaze_ratio([36, 37, 38, 39, 40, 41], landmarks, frame, gray)
+            # gaze_ratio_right_eye = get_gaze_ratio([42, 43, 44, 45, 46, 47], landmarks, frame, gray)
+            # gaze_ratio = (gaze_ratio_right_eye + gaze_ratio_left_eye) / 2
 
 
-            cv2.imshow("Frame", frame)
+            # cv2.imshow("Frame", frame)
             # cv2.imshow("New frame", new_frame)
             # if(gaze_ratio < 0):
             #     gaze_ratio = 0
@@ -149,11 +149,17 @@ def App():
                 if event.type == pygame.MOUSEMOTION:
                     m_pos = pygame.mouse.get_pos()
                     print("mouse: " ,m_pos)
-            x = 2880 + int(gaze_ratio * -2880/3)
-            y = int((blinking_ratio-3)*1800/2)
+            # x = 2880 + int(gaze_ratio * -2880/3)
+            # y = int((blinking_ratio-3)*1800/2)
             print((x, y))
-            
-            pygame.draw.circle(window, pygame.Color(0, 0, 255), (x, y), 30, 0)	
+            radius = 30
+            for i in range(1,4):
+                pygame.draw.circle(window, pygame.Color(255, 0, 0), (display_w/7, display_h*i/4), radius, 0)	
+            for i in range(1,4):
+                pygame.draw.circle(window, pygame.Color(255, 0, 0), (display_w/2, display_h*i/4), radius, 0)	
+            for i in range(1,4):
+                pygame.draw.circle(window, pygame.Color(255, 0, 0), (display_w - display_w/7, display_h*i/4), radius, 0)	
+            pygame.draw.circle(window, pygame.Color(0, 0, 255), (x, y), radius, 2)	
             pygame.display.update()
 
             if cv2.waitKey(1) == ord('q'):
