@@ -7,6 +7,7 @@ from pygame.locals import *
 from random import randint
 import pygame
 import time
+import os
 
 def midpoint(p1 ,p2):
 	return int((p1.x + p2.x)/2), int((p1.y + p2.y)/2)
@@ -94,6 +95,15 @@ def App():
 	frames = 0
 	letter_index = 0
 
+	directory = os.fsencode("test")
+
+	for file in os.listdir(directory):
+     filename = os.fsdecode(file)
+     if filename.endswith(".asm") or filename.endswith(".py"): 
+         # print(os.path.join(directory, filename))
+         continue
+     else:
+         continue
 	#Wait for capture to start
 	cap = cv2.VideoCapture(0)
 	
@@ -168,7 +178,7 @@ def App():
 			# else:
 			#	  new_frame[:] = (255, 0, 0)
 			#	  cv2.putText(frame, "LEFT", (50, 100), font, 2, (0, 0, 255), 3)
-			# window.fill((0,0,0))
+			window.fill((0,0,0))
 
 		eventList = pygame.event.get()
 
@@ -187,7 +197,7 @@ def App():
 		print("Blink: ", blinking_ratio)
 
 		#print("Eyes: ",(sight_x, sight_y))
-		#draw_targets(window, display_h, display_w)
+		draw_targets(window, display_h, display_w)
 		#NOTE: Holding y constant to test X values using gaze ratio
 		pygame.draw.circle(window, random_color(), (sight_x, display_h/2), 20, 2)	
 		pygame.display.update()
