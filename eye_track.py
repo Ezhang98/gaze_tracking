@@ -147,7 +147,7 @@ def App():
 
 
 			cv2.imshow("Frame", frame)
-			cv2.imshow("New frame", new_frame)
+			# cv2.imshow("New frame", new_frame)
 			# if(gaze_ratio < 0):
 			#	  gaze_ratio = 0
 			# if(gaze_ratio > 3):
