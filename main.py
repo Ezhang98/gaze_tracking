@@ -1,5 +1,6 @@
 # Evan Zhang
 # Martin Lopez
+# Gonzalo Arana
 
 
 import cv2 as cv
