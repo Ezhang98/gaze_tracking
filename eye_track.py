@@ -101,7 +101,7 @@ def App():
 	# for file in os.listdir(directory):
 		# filename = os.fsdecode(file)
 		# print(filename)
-	processFile("./test/" + "right_evan.mp4", window, detector, predictor, font, display_h, display_w)
+	processFile("./test/" + "left_evan.mp4", window, detector, predictor, font, display_h, display_w)
 	quit()
  	# if filename.index(""): 
      # print(os.path.join(directory, filename))
@@ -182,7 +182,7 @@ def processFile(filename, window, detector, predictor, font, display_h, display_
 			# 	m_pos = pygame.mouse.get_pos()
 			# 	print("Mouse: " ,m_pos)
 
-			sight_x = display_w + int(gaze_ratio * -display_w/3) + 350
+			sight_x = display_w + int(gaze_ratio * -display_w/3)
 			# sight_y = int((blinking_ratio-3)*1800/2)
 
 	# 		print("Gaze: " , gaze_ratio)
@@ -193,18 +193,30 @@ def processFile(filename, window, detector, predictor, font, display_h, display_
 	# 		#NOTE: Holding y constant to test X values using gaze ratio
 			# if(sight_x > display_w):
 			# 	sight_x = display_w
-			# if(sight_x < 0):
-			# 	sight_x = 0
-			pygame.draw.circle(window, random_color(), (sight_x, display_h/2), 20, 2)	
-			pygame.display.update()
+
+
 			if "left" in filename:
+				if(sight_x <= 0):
+					sight_x = 0
 				dist_from_target += getAccuracy([sight_x, display_h/2], [0, display_h/2])
+				pygame.draw.circle(window, random_color(), (sight_x, display_h/2), 20, 2)	
+				pygame.display.update()
 
 			if "right" in filename:
+				if(sight_x <= 0):
+					continue
+				sight_x += 350
 				dist_from_target += getAccuracy([sight_x, display_h/2], [display_w, display_h/2])
+				pygame.draw.circle(window, random_color(), (sight_x, display_h/2), 20, 2)	
+				pygame.display.update()
 
 			if "center" in filename:
+				if(sight_x <= 0):
+					continue
+				sight_x += 620
 				dist_from_target += getAccuracy([sight_x, display_h/2], [display_w/2, display_h/2])
+				pygame.draw.circle(window, random_color(), (sight_x, display_h/2), 20, 2)	
+				pygame.display.update()
 				
 			
 			print(dist_from_target/frames)
