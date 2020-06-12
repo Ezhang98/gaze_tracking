@@ -9,6 +9,7 @@ import pygame
 import time
 import os
 import sys
+import math
 
 def midpoint(p1 ,p2):
 	return int((p1.x + p2.x)/2), int((p1.y + p2.y)/2)
@@ -68,11 +69,11 @@ def get_gaze_ratio(eye_points, facial_landmarks, frame, gray):
 def draw_targets(window, display_h, display_w):
 	radius = 30
 	for i in range(1,4):
-		pygame.draw.circle(window, pygame.Color(255, 0, 0), (display_w/7, display_h*i/4), radius, 0)	
+		pygame.draw.circle(window, pygame.Color(255, 0, 0), (display_w, display_h*i/4), radius, 0)	
 	for i in range(1,4):
 		pygame.draw.circle(window, pygame.Color(255, 0, 0), (display_w/2, display_h*i/4), radius, 0)	
 	for i in range(1,4):
-		pygame.draw.circle(window, pygame.Color(255, 0, 0), (display_w - display_w/7, display_h*i/4), radius, 0)	
+		pygame.draw.circle(window, pygame.Color(255, 0, 0), (0, display_h*i/4), radius, 0)	
 
 def App():
 
@@ -100,7 +101,7 @@ def App():
 	# for file in os.listdir(directory):
 		# filename = os.fsdecode(file)
 		# print(filename)
-	processFile("./test/" + "right_gonzalo.mov", window, detector, predictor, font, display_h, display_w)
+	processFile("./test/" + "right_evan.mp4", window, detector, predictor, font, display_h, display_w)
 	quit()
  	# if filename.index(""): 
      # print(os.path.join(directory, filename))
@@ -123,6 +124,9 @@ def processFile(filename, window, detector, predictor, font, display_h, display_
 	#frame counter
 	frames = 0
 
+	#accumulator
+	dist_from_target = 0
+
 	# show frame
 	# while(not cap.isOpened()):
 	while(True):
@@ -142,8 +146,10 @@ def processFile(filename, window, detector, predictor, font, display_h, display_
 		gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
 		faces = detector(gray)
-
+		# count = 0
 		for face in faces:
+			# count += 1
+			# print(frames)
 			x, y = face.left(), face.top()
 			x1, y1 = face.right(), face.bottom()
 			cv2.rectangle(frame, (x, y), (x1, y1), (0, 255, 0), 2)
@@ -176,7 +182,7 @@ def processFile(filename, window, detector, predictor, font, display_h, display_
 			# 	m_pos = pygame.mouse.get_pos()
 			# 	print("Mouse: " ,m_pos)
 
-			sight_x = 2880 + int(gaze_ratio * -2880/3)
+			sight_x = display_w + int(gaze_ratio * -display_w/3) + 350
 			# sight_y = int((blinking_ratio-3)*1800/2)
 
 	# 		print("Gaze: " , gaze_ratio)
@@ -185,18 +191,38 @@ def processFile(filename, window, detector, predictor, font, display_h, display_
 	# 		#print("Eyes: ",(sight_x, sight_y))
 			draw_targets(window, display_h, display_w)
 	# 		#NOTE: Holding y constant to test X values using gaze ratio
-			if(sight_x > display_w):
-				sight_x = display_w
-			if(sight_x < 0):
-				sight_x = 0
+			# if(sight_x > display_w):
+			# 	sight_x = display_w
+			# if(sight_x < 0):
+			# 	sight_x = 0
 			pygame.draw.circle(window, random_color(), (sight_x, display_h/2), 20, 2)	
 			pygame.display.update()
+			if "left" in filename:
+				dist_from_target += getAccuracy([sight_x, display_h/2], [0, display_h/2])
+
+			if "right" in filename:
+				dist_from_target += getAccuracy([sight_x, display_h/2], [display_w, display_h/2])
+
+			if "center" in filename:
+				dist_from_target += getAccuracy([sight_x, display_h/2], [display_w/2, display_h/2])
+				
+			
+			print(dist_from_target/frames)
+
+			
 
 	cap.release()
 	cv2.destroyAllWindows()	
 	return
 
-
+#statistics
+def getAccuracy(actualPosition, targetPosition):
+	x1, y1 = actualPosition[0], actualPosition[1]
+	x2, y2 = targetPosition[0], targetPosition[1]
+	return math.sqrt(math.pow(y2 - y1, 2) + math.pow(x2 - x1, 2))
+	#actualPosition: x, y tuple of the estimated visualized position on screen
+	#targetPosition: x, y tuple of the target visualized position on screen
+	
 
 #cap = cv2.VideoCapture(0)
 
