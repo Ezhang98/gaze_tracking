@@ -1,3 +1,6 @@
+# Evan Zhang, Gonzalo Arana, Martin Lopez
+
+
 import cv2
 import random
 import numpy as np
