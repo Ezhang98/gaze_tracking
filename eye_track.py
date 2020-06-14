@@ -14,6 +14,7 @@ import math
 def midpoint(p1 ,p2):
 	return int((p1.x + p2.x)/2), int((p1.y + p2.y)/2)
 
+# Get ratio of space between the eyelids and determine if blinking is occuring
 def get_blinking_ratio(eye_points, facial_landmarks, frame):
 	left_point = (facial_landmarks.part(eye_points[0]).x, facial_landmarks.part(eye_points[0]).y)
 	right_point = (facial_landmarks.part(eye_points[3]).x, facial_landmarks.part(eye_points[3]).y)
@@ -29,6 +30,7 @@ def get_blinking_ratio(eye_points, facial_landmarks, frame):
 	ratio = hor_line_lenght / ver_line_lenght
 	return ratio
 
+# Get ratio of sclera on each side of the pupil
 def get_gaze_ratio(eye_points, facial_landmarks, frame, gray):
 	left_eye_region = np.array([(facial_landmarks.part(eye_points[0]).x, facial_landmarks.part(eye_points[0]).y),
 								(facial_landmarks.part(eye_points[1]).x, facial_landmarks.part(eye_points[1]).y),
@@ -66,6 +68,7 @@ def get_gaze_ratio(eye_points, facial_landmarks, frame, gray):
 		gaze_ratio = left_side_white / right_side_white
 	return gaze_ratio
 
+# Draw test targets
 def draw_targets(window, display_h, display_w):
 	radius = 30
 	for i in range(1,4):
@@ -74,6 +77,7 @@ def draw_targets(window, display_h, display_w):
 		pygame.draw.circle(window, pygame.Color(255, 0, 0), (display_w/2, display_h*i/4), radius, 0)	
 	for i in range(1,4):
 		pygame.draw.circle(window, pygame.Color(255, 0, 0), (0, display_h*i/4), radius, 0)	
+
 
 def App():
 
@@ -86,57 +90,46 @@ def App():
 	display_h = pygame.display.Info().current_h
 	display_w = pygame.display.Info().current_w
 
-	# logo = pygame.image.load("logo32x32.png")
-	# pygame.display.set_icon(logo)
 	pygame.display.set_caption("minimal program")
 
 	#create new "full-screen" window
 	window = pygame.display.set_mode((display_w , display_h))
 
-	# Counters
-
-
-	directory = os.fsencode("test")
-
+	# run through all the test files
+	# directory = os.fsencode("test")
 	# for file in os.listdir(directory):
 		# filename = os.fsdecode(file)
-		# print(filename)
-	processFile("./test/" + "left_evan.mp4", window, detector, predictor, font, display_h, display_w)
-	quit()
- 	# if filename.index(""): 
-     # print(os.path.join(directory, filename))
-#      continue
-#  else:
-#      continue
+		# processFile("./test/" + filename, window, detector, predictor, font, display_h, display_w)
 
+	processFile("", window, detector, predictor, font, display_h, display_w)
 	cv2.destroyAllWindows()	
 
-
+# Generates either red, blue or green
 def random_color():
     rgbl=[255,0,0]
     random.shuffle(rgbl)
     return pygame.Color(rgbl[0],rgbl[1],rgbl[2])
 
 def processFile(filename, window, detector, predictor, font, display_h, display_w):
-#Wait for capture to start
+	# Wait for capture to start
 	cap = cv2.VideoCapture(filename)
+	if filename == "":
+		cap = cv2.VideoCapture(0)
 
-	#frame counter
+	# frame counter
 	frames = 0
 
-	#accumulator
+	# accumulator
 	dist_from_target = 0
 
-	# show frame
-	# while(not cap.isOpened()):
 	while(True):
 		_, frame = cap.read()
 		if(frame is None):
 			print("Frame is none")
 			break
-		#cv2.waitKey(1)
-		time.sleep
-		cv2.imshow("Frame", frame)
+		
+		cv2.waitKey(1)
+		
 
 		# face detection
 		frame = cv2.resize(frame, None, fx=0.5, fy=0.5)
@@ -146,30 +139,30 @@ def processFile(filename, window, detector, predictor, font, display_h, display_
 		gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
 		faces = detector(gray)
-		# count = 0
+
 		for face in faces:
-			# count += 1
-			# print(frames)
+
 			x, y = face.left(), face.top()
 			x1, y1 = face.right(), face.bottom()
 			cv2.rectangle(frame, (x, y), (x1, y1), (0, 255, 0), 2)
 
 			landmarks = predictor(gray, face)
 
-			# Detect blinking
-			# left_eye_ratio = get_blinking_ratio([36, 37, 38, 39, 40, 41], landmarks, frame)
-			# right_eye_ratio = get_blinking_ratio([42, 43, 44, 45, 46, 47], landmarks, frame)
-			# blinking_ratio = (left_eye_ratio + right_eye_ratio) / 2
+			Detect blinking
+			left_eye_ratio = get_blinking_ratio([36, 37, 38, 39, 40, 41], landmarks, frame)
+			right_eye_ratio = get_blinking_ratio([42, 43, 44, 45, 46, 47], landmarks, frame)
+			blinking_ratio = (left_eye_ratio + right_eye_ratio) / 2
 
-			# print(blinking_ratio)
-			# if blinking_ratio > 5.7:
-			# cv2.putText(frame, "BLINKING", (50, 150), font, 7, (255, 0, 0))
+			print(blinking_ratio)
+			if blinking_ratio > 5.7:
+			cv2.putText(frame, "BLINKING", (50, 150), font, 7, (255, 0, 0))
 
 			# Gaze detection
 			gaze_ratio_left_eye = get_gaze_ratio([36, 37, 38, 39, 40, 41], landmarks, frame, gray)
 			gaze_ratio_right_eye = get_gaze_ratio([42, 43, 44, 45, 46, 47], landmarks, frame, gray)
 			gaze_ratio = (gaze_ratio_right_eye + gaze_ratio_left_eye) / 2
-			# print("Pre_gaze: ", gaze_ratio)
+			
+			# Clear Screen after every draw
 			# window.fill((0,0,0))
 
 			eventList = pygame.event.get()
@@ -178,21 +171,18 @@ def processFile(filename, window, detector, predictor, font, display_h, display_
 				event = eventList[0]
 				if event.type == pygame.QUIT:
 					break
-			# if event.type == pygame.MOUSEMOTION:
-			# 	m_pos = pygame.mouse.get_pos()
-			# 	print("Mouse: " ,m_pos)
 
 			sight_x = display_w + int(gaze_ratio * -display_w/3)
-			# sight_y = int((blinking_ratio-3)*1800/2)
 
-	# 		print("Gaze: " , gaze_ratio)
-	# 		print("Blink: ", blinking_ratio)
-
-	# 		#print("Eyes: ",(sight_x, sight_y))
+	 		# print("Gaze: " , gaze_ratio)
+	 		# print("Blink: ", blinking_ratio)
+	 		# print("Eyes: ",(sight_x, sight_y))
 			draw_targets(window, display_h, display_w)
-	# 		#NOTE: Holding y constant to test X values using gaze ratio
-			# if(sight_x > display_w):
+	 		# NOTE: Holding y constant to test X values using gaze ratio
+			# if sight_x > display_w:
 			# 	sight_x = display_w
+			# if sight_x <= 0:
+			# 	sight_x = 0
 
 
 			if "left" in filename:
@@ -200,138 +190,37 @@ def processFile(filename, window, detector, predictor, font, display_h, display_
 					sight_x = 0
 				dist_from_target += getAccuracy([sight_x, display_h/2], [0, display_h/2])
 				pygame.draw.circle(window, random_color(), (sight_x, display_h/2), 20, 2)	
-				pygame.display.update()
-
-			if "right" in filename:
+			elif "right" in filename:
 				if(sight_x <= 0):
 					continue
 				sight_x += 350
 				dist_from_target += getAccuracy([sight_x, display_h/2], [display_w, display_h/2])
 				pygame.draw.circle(window, random_color(), (sight_x, display_h/2), 20, 2)	
-				pygame.display.update()
-
-			if "center" in filename:
+			elif "center" in filename:
 				if(sight_x <= 0):
 					continue
 				sight_x += 620
 				dist_from_target += getAccuracy([sight_x, display_h/2], [display_w/2, display_h/2])
 				pygame.draw.circle(window, random_color(), (sight_x, display_h/2), 20, 2)	
-				pygame.display.update()
-				
+			else:
+				sight_x = display_w + int(gaze_ratio * -1 * display_w/3)
+				sight_y = int((blinking_ratio-3)*display_h/2)
+				pygame.draw.circle(window, random_color(), (sight_x, sight_y), 20, 2)
+			pygame.display.update()
 			
-			print(dist_from_target/frames)
-
-			
-
+			print("Distance from target: %.3f", dist_from_target/frames)
+		cv2.imshow("Frame", frame)
 	cap.release()
 	cv2.destroyAllWindows()	
 	return
 
-#statistics
+# statistics
 def getAccuracy(actualPosition, targetPosition):
 	x1, y1 = actualPosition[0], actualPosition[1]
 	x2, y2 = targetPosition[0], targetPosition[1]
 	return math.sqrt(math.pow(y2 - y1, 2) + math.pow(x2 - x1, 2))
 	#actualPosition: x, y tuple of the estimated visualized position on screen
 	#targetPosition: x, y tuple of the target visualized position on screen
-	
-
-#cap = cv2.VideoCapture(0)
-
-	# while True:
-	# 	sight_x = 0
-	# 	sight_y = 0		
-
-	# 	gaze_ratio = 0
-	# 	blinking_ratio = 0
-
-	# 	_, frame = cap.read()
-	# 	if(frame is None):
-	# 		print("Frame is none")
-	# 		break
-
-	# 	frame = cv2.resize(frame, None, fx=0.5, fy=0.5)
-
-	# 	frames += 1
-	# 	new_frame = np.zeros((500, 500, 3), np.uint8)
-	# 	gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-
-	# 	faces = detector(gray)
-
-	# 	for face in faces:
-	# 		x, y = face.left(), face.top()
-	# 		x1, y1 = face.right(), face.bottom()
-	# 		cv2.rectangle(frame, (x, y), (x1, y1), (0, 255, 0), 2)
-
-	# 		landmarks = predictor(gray, face)
-
-	# 		# Detect blinking
-	# 		# left_eye_ratio = get_blinking_ratio([36, 37, 38, 39, 40, 41], landmarks, frame)
-	# 		# right_eye_ratio = get_blinking_ratio([42, 43, 44, 45, 46, 47], landmarks, frame)
-	# 		# blinking_ratio = (left_eye_ratio + right_eye_ratio) / 2
-
-	# 		# print(blinking_ratio)
-	# 		# if blinking_ratio > 5.7:
-	# 		# cv2.putText(frame, "BLINKING", (50, 150), font, 7, (255, 0, 0))
-
-
-	# 		# Gaze detection
-	# 		gaze_ratio_left_eye = get_gaze_ratio([36, 37, 38, 39, 40, 41], landmarks, frame, gray)
-	# 		gaze_ratio_right_eye = get_gaze_ratio([42, 43, 44, 45, 46, 47], landmarks, frame, gray)
-	# 		gaze_ratio = (gaze_ratio_right_eye + gaze_ratio_left_eye) / 2
-	# 		print("Pre_gaze: ", gaze_ratio)
-
-
-	# 		cv2.imshow("Frame", frame)
-	# 		# cv2.imshow("New frame", new_frame)
-	# 		# if(gaze_ratio < 0):
-	# 		#	  gaze_ratio = 0
-	# 		# if(gaze_ratio > 3):
-	# 		#	  gaze_ratio = 3
-	# 		# print(gaze_ratio)
-	# 		#2880x 1800
-	# 		# 3 - 0
-	# 		# 0 - 2880
-
-	# 		# cv2.moveWindow("New frame", 2880 + int(gaze_ratio * -2880/3) , int(1800/4))
-	# 		# if gaze_ratio <= 1:
-	# 		#	  cv2.putText(frame, "RIGHT", (50, 100), font, 2, (0, 0, 255), 3)
-	# 		#	  new_frame[:] = (0, 0, 255)
-
-	# 		# elif 1 < gaze_ratio < 1.7:
-	# 		#	  cv2.putText(frame, "CENTER", (50, 100), font, 2, (0, 0, 255), 3)
-
-	# 		# else:
-	# 		#	  new_frame[:] = (255, 0, 0)
-	# 		#	  cv2.putText(frame, "LEFT", (50, 100), font, 2, (0, 0, 255), 3)
-	# 		window.fill((0,0,0))
-
-	# 		eventList = pygame.event.get()
-
-	# 		if(eventList):
-	# 			event = eventList[0]
-	# 		if event.type == pygame.QUIT:
-	# 			break
-	# 		if event.type == pygame.MOUSEMOTION:
-	# 			m_pos = pygame.mouse.get_pos()
-	# 			print("Mouse: " ,m_pos)
-
-	# 		sight_x = 2880 + int(gaze_ratio * -2880/3)
-	# 		sight_y = int((blinking_ratio-3)*1800/2)
-
-	# 		print("Gaze: " , gaze_ratio)
-	# 		print("Blink: ", blinking_ratio)
-
-	# 		#print("Eyes: ",(sight_x, sight_y))
-	# 		draw_targets(window, display_h, display_w)
-	# 		#NOTE: Holding y constant to test X values using gaze ratio
-	# 		pygame.draw.circle(window, random_color(), (sight_x, display_h/2), 20, 2)	
-	# 		pygame.display.update()
-
-	# 	# if cv2.waitKey(100) == ord('q'):
-	# 	# break
-
-	
 	
 
 if __name__ == "__main__" :
